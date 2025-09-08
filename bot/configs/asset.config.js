@@ -7,7 +7,7 @@ import environments from '../utils/environments.js';
 
 const {
   PANCAKE_PREDICTION_CONTRACT_ADDRESS,
-  CAPITAL_PRIVATE_KEY,
+  MASTER_WALLET_PRIVATE_KEY,
 } = environments;
 
 export const contract = new Contract(
@@ -16,4 +16,4 @@ export const contract = new Contract(
   staticProvider
 );
 
-export const wallet = new Wallet(CAPITAL_PRIVATE_KEY, staticProvider);
+export const wallet = new Wallet(MASTER_WALLET_PRIVATE_KEY, staticProvider);
