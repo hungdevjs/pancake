@@ -107,6 +107,7 @@ const claimWinRounds = async (positions) => {
   const winRounds = Object.values(positions).filter(
     (position) => position.result === 'win' && position.claimed === false
   );
+
   if (winRounds.length >= numberOfRoundsToClaim) {
     const epochs = winRounds.map((round) => round.epoch);
 
@@ -114,15 +115,10 @@ const claimWinRounds = async (positions) => {
     const tx = await contract.connect(wallet).claim(epochs, { gasPrice });
     await tx.wait();
 
-    const claimAmount = winRounds.reduce(
-      (total, round) => total + round.outcome,
-      0
-    );
+    winRounds.map((round) => {
+      positions[round.epoch].claimed = true;
+    }, {});
   }
-
-  winRounds.map((round) => {
-    positions[round.epoch].claimed = true;
-  }, {});
 
   await setPositions(positions);
 };
