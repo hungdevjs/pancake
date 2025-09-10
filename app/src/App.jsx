@@ -65,7 +65,7 @@ const App = () => {
                 netProfit > 0 ? 'text-green-500' : 'text-red-500'
               }`}
             >
-              Net profit: {Math.round(netProfit * 1_000_000) / 1_000_000}BNB
+              Net profit: {Math.round(netProfit * 1_000_000) / 1_000_000} BNB
             </p>
           </div>
           <div className="bg-white/7 p-2 rounded-lg">
