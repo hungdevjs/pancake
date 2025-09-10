@@ -24,3 +24,15 @@ api.interceptors.response.use(
 export default api;
 
 export const getPositions = () => api.get('/positions');
+
+export const getBNBPriceInUSD = async () => {
+  try {
+    const res = await axios.get(
+      'https://api.coinbase.com/v2/exchange-rates?currency=BNB'
+    );
+    return res.data.data.rates.USD;
+  } catch (err) {
+    console.error(err);
+    return 1;
+  }
+};

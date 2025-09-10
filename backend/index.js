@@ -18,7 +18,7 @@ app.get('/', async (req, res) => {
 
 app.get('/positions', async (req, res) => {
   try {
-    const data = await redis.get('pancake');
+    const data = (await redis.get('pancake')) || '{}';
     const positions = JSON.parse(data);
 
     const results = Object.values(positions).sort(

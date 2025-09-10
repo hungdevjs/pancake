@@ -1,4 +1,5 @@
 import { parseEther } from '@ethersproject/units';
+import { BigNumber } from '@ethersproject/bignumber';
 
 import { wallet, contract } from './configs/asset.config.js';
 import { getRound } from './services/round.service.js';
@@ -9,6 +10,7 @@ import { staticProvider } from './configs/provider.config.js';
 const {
   PANCAKE_PREDICTION_TREASURY_FEE,
   PANCAKE_PREDICTION_BET_AMOUNT,
+  MIN_GAS,
 
   FULFILL_PHASE_END_TIME_IN_SECOND,
   CLAIM_PHASE_END_TIME_IN_SECOND,
@@ -18,6 +20,7 @@ const {
   NUMBER_OF_ROUNDS_TO_CLAIM,
 } = environments;
 
+const minGas = parseEther(MIN_GAS);
 const fulfillPhaseEndTimeInSecond = Number(FULFILL_PHASE_END_TIME_IN_SECOND);
 const claimPhaseEndTimeInSecond = Number(CLAIM_PHASE_END_TIME_IN_SECOND);
 const analyzePhaseStartTimeFromSecond = Number(
@@ -46,23 +49,25 @@ const setPositions = async (data) => {
 
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
-const getGasFeeData = async (multiplier = 1.0) => {
+const getGasFeeData = async (multiplier = 1) => {
   const feeData = await staticProvider.getFeeData();
 
-  const scale = 100n;
-  const mul = BigInt(Math.round(multiplier * Number(scale)));
+  const { gasPrice } = feeData;
 
-  const applyMultiplier = (value) => (value ? (value * mul) / scale : null);
+  const scale = BigNumber.from(10000);
+  const mul = BigNumber.from(Math.round(multiplier * scale.toNumber()));
 
-  return applyMultiplier(feeData.gasPrice);
+  const gas = gasPrice.mul(mul).div(scale);
+
+  return gas;
 };
 
-const bet = async (fn, betAmount) => {
-  const gasPrice = await getGasFeeData(1.1);
-
+const bet = async (epoch, fn, betAmount) => {
+  const gasPrice = await getGasFeeData(3);
   const tx = await contract
     .connect(wallet)
-    [fn](currentEpoch, { value: parseEther(`${betAmount}`), gasPrice });
+    [fn](epoch, { value: parseEther(`${betAmount}`), gasPrice });
+
   await tx.wait();
 };
 
@@ -112,6 +117,7 @@ const claimWinRounds = async (positions) => {
     const epochs = winRounds.map((round) => round.epoch);
 
     const gasPrice = await getGasFeeData(1.1);
+
     const tx = await contract.connect(wallet).claim(epochs, { gasPrice });
     await tx.wait();
 
@@ -173,13 +179,23 @@ const tick = async () => {
       }
 
       await claimWinRounds(positions);
-    } else if (openTimeLeftInSeconds <= analyzePhaseStartTimeFromSecond) {
+    } else if (
+      openTimeLeftInSeconds > 0 &&
+      openTimeLeftInSeconds <= analyzePhaseStartTimeFromSecond
+    ) {
       if (!analyzing[currentEpoch.toString()]) {
         console.log(`epoch=${currentEpoch} | analyze phase | analyzing...`);
         analyzing[currentEpoch.toString()] = true;
       }
 
       const hasNotBetYet = !positions[currentEpoch.toString()];
+
+      const betAmount = defaultBetAmount;
+
+      const bullPayoutRatio =
+        (totalAmount + betAmount) / (bullAmount + betAmount);
+      const bearPayoutRatio =
+        (totalAmount + betAmount) / (bearAmount + betAmount);
       const roiAccepted = Math.max(bullPayoutRatio, bearPayoutRatio) >= minROI;
 
       const willBet = hasNotBetYet && roiAccepted;
@@ -191,12 +207,11 @@ const tick = async () => {
           )}`
         );
 
-        const betAmount = defaultBetAmount;
         const betPosition = bullPayoutRatio > bearPayoutRatio ? 'bull' : 'bear';
 
         const fn = betPosition === 'bull' ? 'betBull' : 'betBear';
 
-        await bet(fn, betAmount);
+        await bet(currentEpoch, fn, betAmount);
 
         positions[currentEpoch.toString()] = {
           epoch: currentEpoch,
@@ -230,7 +245,7 @@ const main = async () => {
   await delay(2_000);
   while (true) {
     await tick();
-    await delay(1_000);
+    await delay(500);
   }
 };
 
