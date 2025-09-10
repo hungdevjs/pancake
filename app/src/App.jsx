@@ -6,11 +6,11 @@ import environments from './utils/environments';
 const { MASTER_WALLET_ADDRESS } = environments;
 
 const INTERVAL_WINDOW = 5_000;
-const START_AMOUNT = 0.14687975;
 
 const App = () => {
   const [positions, setPositions] = useState([]);
   const [balance, setBalance] = useState(0);
+  const [netProfit, setNetProfit] = useState(0);
   const [BNBPrice, setBNBPrice] = useState(0);
 
   const interval = useRef();
@@ -23,9 +23,14 @@ const App = () => {
   const get = async () => {
     try {
       const res = await getPositions();
-      const { positions: newPositions, balance: newBalance } = res.data;
+      const {
+        positions: newPositions,
+        balance: newBalance,
+        netProfit: newNetProfit,
+      } = res.data;
       setPositions(newPositions);
       setBalance(newBalance);
+      setNetProfit(newNetProfit);
     } catch (err) {
       console.error(err);
     }
@@ -49,7 +54,6 @@ const App = () => {
     return () => removeInterval();
   }, []);
 
-  const netProfit = balance - START_AMOUNT;
   return (
     <div className="bg-black">
       <div className="h-dvh max-w-[1280px] mx-auto p-4 flex flex-col gap-2">

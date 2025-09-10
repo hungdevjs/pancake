@@ -6,7 +6,9 @@ import { redis } from './configs/redis.config.js';
 import { staticProvider } from './configs/provider.config.js';
 import environments from './utils/environments.js';
 
-const { PORT, MASTER_WALLET_ADDRESS } = environments;
+const { PORT, MASTER_WALLET_ADDRESS, START_BALANCE } = environments;
+
+const startBalance = Number(START_BALANCE);
 
 const app = express();
 
@@ -28,7 +30,9 @@ app.get('/positions', async (req, res) => {
     const rawBalance = await staticProvider.getBalance(MASTER_WALLET_ADDRESS);
     const balance = Number(formatEther(rawBalance));
 
-    return res.status(200).send({ positions: results, balance });
+    const netProfit = balance - startBalance;
+
+    return res.status(200).send({ positions: results, balance, netProfit });
   } catch (err) {
     console.error(err);
     return res.status(400).send(err.message);

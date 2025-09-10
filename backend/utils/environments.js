@@ -14,6 +14,8 @@ const environments = {
   REDIS_PASSWORD: process.env.REDIS_PASSWORD,
   REDIS_HOST: process.env.REDIS_HOST,
   REDIS_PORT: process.env.REDIS_PORT,
+
+  START_BALANCE: process.env.START_BALANCE,
 };
 
 export default environments;
