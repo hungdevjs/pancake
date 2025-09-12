@@ -47,6 +47,7 @@ const App = () => {
 
   useEffect(() => {
     getBNBPrice();
+    get();
     removeInterval();
 
     interval.current = setInterval(get, INTERVAL_WINDOW);
