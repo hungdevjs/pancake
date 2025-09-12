@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import { formatEther } from '@ethersproject/units';
 
+import { redis } from './configs/redis.config.js';
 import { staticProvider } from './configs/provider.config.js';
 import environments from './utils/environments.js';
 
@@ -19,7 +20,6 @@ app.get('/', async (req, res) => {
 
 app.get('/positions', async (req, res) => {
   try {
-    const { redis } = await import('./configs/redis.config.js');
     const data = (await redis.get('pancake')) || '{}';
     const positions = JSON.parse(data);
 
