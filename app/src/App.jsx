@@ -113,9 +113,6 @@ const App = () => {
           </div>
         </div>
         <div className="grid grid-cols-12 gap-2">
-          <div className="col-span-12 sm:col-span-6">
-            <BNBChart />
-          </div>
           {currentRound && (
             <div className="col-span-12 sm:col-span-6 border border-gray-700 flex flex-col">
               <div className="border-b border-gray-700 p-2">
@@ -152,6 +149,9 @@ const App = () => {
               </div>
             </div>
           )}
+          <div className="col-span-12 sm:col-span-6">
+            <BNBChart />
+          </div>
         </div>
         <div className="w-full overflow-auto">
           <div className="min-w-[960px] grid grid-cols-12 px-2 py-1">
