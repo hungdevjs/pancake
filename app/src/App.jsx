@@ -177,7 +177,7 @@ const App = () => {
               <p className="text-white font-medium">Status</p>
             </div>
           </div>
-          <div className="h-[400px] min-w-[960px]  flex flex-col border border-gray-800 rounded-lg overflow-auto">
+          <div className="h-[400px] min-w-[960px] flex flex-col border border-gray-800 overflow-auto">
             {positions.map((position, index) => (
               <div
                 key={position.epoch}
