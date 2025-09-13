@@ -74,10 +74,14 @@ const bet = async (epoch, fn, betAmount) => {
 const getLockPrice = async (positions, epoch) => {
   console.log(`[getLockPrice] epoch=${epoch}`);
 
-  const { lockPrice } = await getRound(epoch);
+  const { lockPrice, bullPayoutRatio, bearPayoutRatio } = await getRound(epoch);
+  const position = positions[epoch];
+  const expectedPayoutRatio =
+    position.position === 'bull' ? bullPayoutRatio : bearPayoutRatio;
 
   if (lockPrice > 0) {
     positions[epoch].lockPrice = lockPrice;
+    positions[epoch].expectedPayoutRatio = expectedPayoutRatio;
     await setPositions(positions);
   }
 };
@@ -111,7 +115,6 @@ const fulfillRound = async (positions, epoch) => {
     }
   }
 
-  positions[epoch].lockPrice = lockPrice;
   positions[epoch].closePrice = closePrice;
   positions[epoch].result = hasWon ? 'win' : 'lose';
   if (hasWon) {

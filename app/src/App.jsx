@@ -123,7 +123,7 @@ const App = () => {
               <div className="flex-1 p-2 flex items-center justify-center">
                 <p className="text-white text-[100px] font-bold">{timeLeft}</p>
               </div>
-              <div className="border-t border-gray-700 p-2 flex items-center justify-between">
+              <div className="border-t border-gray-700 p-2 flex items-center gap-2">
                 <div className="flex items-center gap-2">
                   <img src="/bull.png" alt="bull" className="block w-7" />
                   <div>
@@ -134,6 +134,25 @@ const App = () => {
                       {currentRound.bullPayoutRatio.toFixed(3)}x
                     </p>
                   </div>
+                </div>
+                <div
+                  className={`flex-1 h-[10px] ${
+                    currentRound.totalAmount ? 'bg-red-500' : 'bg-gray-700'
+                  }`}
+                >
+                  <div
+                    className={`bg-green-500 transition duration-200 h-full`}
+                    style={{
+                      width: `${
+                        currentRound.totalAmount
+                          ? Math.round(
+                              (currentRound.bullAmount * 100) /
+                                currentRound.totalAmount
+                            )
+                          : 0
+                      }%`,
+                    }}
+                  />
                 </div>
                 <div className="flex items-center gap-2">
                   <div>
@@ -155,19 +174,22 @@ const App = () => {
         </div>
         <div className="w-full overflow-auto">
           <div className="min-w-[960px] grid grid-cols-12 px-2 py-1">
-            <div className="col-span-1 overflow-auto">
+            <div className="col-span-1">
               <p className="text-white font-medium">Epoch</p>
             </div>
-            <div className="col-span-2 overflow-auto text-right">
+            <div className="col-span-2 text-right">
               <p className="text-white font-medium">Lock Price</p>
             </div>
             <div className="col-span-1 text-right">
               <p className="text-white font-medium">Bet</p>
             </div>
-            <div className="col-span-2 overflow-auto text-right">
+            <div className="col-span-1 text-right">
+              <p className="text-white font-medium">EV return</p>
+            </div>
+            <div className="col-span-2  text-right">
               <p className="text-white font-medium">Close Price</p>
             </div>
-            <div className="col-span-2 text-right">
+            <div className="col-span-1 text-right">
               <p className="text-white font-medium">Result</p>
             </div>
             <div className="col-span-2 text-right">
@@ -185,17 +207,17 @@ const App = () => {
                   index ? 'border-t border-gray-800' : ''
                 } grid grid-cols-12 px-2 py-1`}
               >
-                <div className="col-span-1 overflow-auto">
+                <div className="col-span-1">
                   <p className="text-white">#{position.epoch}</p>
                 </div>
-                <div className="col-span-2 overflow-auto text-right">
+                <div className="col-span-2 text-right">
                   <p className="text-white text-sm">
                     {position.lockPrice
                       ? Math.round(position.lockPrice / 1000_000) / 100
                       : '---'}
                   </p>
                 </div>
-                <div className="col-span-1 overflow-auto text-right">
+                <div className="col-span-1 text-right">
                   <p
                     className={
                       position.position === 'bull'
@@ -206,7 +228,19 @@ const App = () => {
                     {position.position}
                   </p>
                 </div>
-                <div className="col-span-2 overflow-auto text-right">
+                <div className="col-span-1 text-right">
+                  <p
+                    className={
+                      position.position === 'bull'
+                        ? 'text-green-500 text-sm'
+                        : 'text-red-500 text-sm'
+                    }
+                  >
+                    {Math.round(position.expectedPayoutRatio * 10_000) / 10_000}
+                    x
+                  </p>
+                </div>
+                <div className="col-span-2 text-right">
                   <p
                     className={`${
                       position.closePrice > position.lockPrice
@@ -221,7 +255,7 @@ const App = () => {
                       : '---'}
                   </p>
                 </div>
-                <div className="col-span-2 text-right">
+                <div className="col-span-1 text-right">
                   <p
                     className={
                       position.result === 'win'
