@@ -16,6 +16,8 @@ const environments = {
   REDIS_PORT: process.env.REDIS_PORT,
 
   START_BALANCE: process.env.START_BALANCE,
+  PANCAKE_PREDICTION_CONTRACT_ADDRESS:
+    process.env.PANCAKE_PREDICTION_CONTRACT_ADDRESS,
 };
 
 export default environments;
