@@ -71,6 +71,17 @@ const bet = async (epoch, fn, betAmount) => {
   await tx.wait();
 };
 
+const getLockPrice = async (positions, epoch) => {
+  console.log(`[getLockPrice] epoch=${epoch}`);
+
+  const { lockPrice } = await getRound(epoch);
+
+  if (lockPrice > 0) {
+    positions[epoch].lockPrice = lockPrice;
+    await setPositions(positions);
+  }
+};
+
 const fulfillRound = async (positions, epoch) => {
   console.log(`[fulfillRound] epoch=${epoch}`);
 
@@ -100,6 +111,7 @@ const fulfillRound = async (positions, epoch) => {
     }
   }
 
+  positions[epoch].lockPrice = lockPrice;
   positions[epoch].closePrice = closePrice;
   positions[epoch].result = hasWon ? 'win' : 'lose';
   if (hasWon) {
@@ -145,21 +157,12 @@ const tick = async () => {
       bullPayoutRatio,
       bearPayoutRatio,
       openTimeLeftInSeconds,
-      lockPrice,
     } = await getRound(currentEpoch);
 
     if (isLocked) {
       if (!locked[currentEpoch.toString()]) {
         console.log(`epoch=${currentEpoch} locked | waiting for new round...`);
         locked[currentEpoch.toString()] = true;
-      }
-
-      if (
-        positions[currentEpoch.toString()] &&
-        !positions[currentEpoch.toString()].lockPrice
-      ) {
-        positions[currentEpoch.toString()].lockPrice = lockPrice;
-        await setPositions(positions);
       }
 
       return;
@@ -171,6 +174,13 @@ const tick = async () => {
           `[${currentEpoch}] | fulfill phase | fulfilling last round...`
         );
         fulfilling[currentEpoch.toString()] = true;
+      }
+
+      if (
+        positions[(currentEpoch - 1).toString()] &&
+        !positions[(currentEpoch - 1).toString()].lockPrice
+      ) {
+        await getLockPrice(positions, currentEpoch - 1);
       }
 
       if (

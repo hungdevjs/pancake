@@ -190,7 +190,9 @@ const App = () => {
                 </div>
                 <div className="col-span-2 overflow-auto text-right">
                   <p className="text-white text-sm">
-                    {position.lockPrice?.toFixed(5) || '---'}
+                    {position.lockPrice
+                      ? Math.round(position.lockPrice / 1000_000) / 100
+                      : '---'}
                   </p>
                 </div>
                 <div className="col-span-1 overflow-auto text-right">
@@ -205,8 +207,18 @@ const App = () => {
                   </p>
                 </div>
                 <div className="col-span-2 overflow-auto text-right">
-                  <p className="text-white text-sm">
-                    {position.closePrice?.toFixed(5) || '---'}
+                  <p
+                    className={`${
+                      position.closePrice > position.lockPrice
+                        ? 'text-green-500'
+                        : position.closePrice < position.lockPrice
+                        ? 'text-red-500'
+                        : 'text-white'
+                    } text-sm`}
+                  >
+                    {position.closePrice
+                      ? Math.round(position.closePrice / 1000_000) / 100
+                      : '---'}
                   </p>
                 </div>
                 <div className="col-span-2 text-right">

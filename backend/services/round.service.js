@@ -20,8 +20,8 @@ export const getRound = async (epoch) => {
   const isClosed = now >= closeTimestamp.toNumber() * 1_000;
   const isLocked = now >= lockTimestamp.toNumber() * 1_000;
 
-  const lockPrice = Number(formatEther(rawLockPrice));
-  const closePrice = Number(formatEther(rawClosePrice));
+  const lockPrice = rawLockPrice;
+  const closePrice = rawClosePrice;
 
   const totalAmount = Number(formatEther(rawTotalAmount));
   const bullAmount = Number(formatEther(rawBullAmount));
