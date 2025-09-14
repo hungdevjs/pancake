@@ -85,6 +85,8 @@ const App = () => {
     if (currentRound) {
       countdownInterval.current = setInterval(countdown, 1_000);
     }
+
+    return () => removeCountdownInterval();
   }, [currentRound?.epoch]);
 
   return (
@@ -113,6 +115,9 @@ const App = () => {
           </div>
         </div>
         <div className="grid grid-cols-12 gap-2">
+          <div className="col-span-12 sm:col-span-6">
+            <BNBChart />
+          </div>
           {currentRound && (
             <div className="col-span-12 sm:col-span-6 border border-gray-700 flex flex-col">
               <div className="border-b border-gray-700 p-2">
@@ -168,9 +173,14 @@ const App = () => {
               </div>
             </div>
           )}
-          <div className="col-span-12 sm:col-span-6">
-            <BNBChart />
-          </div>
+          {/* <div className="col-span-12 sm:col-span-4 border border-gray-700 flex flex-col">
+            <div className="border-b border-gray-700 p-2">
+              <p className="text-white text-lg font-medium">Last 50 rounds</p>
+            </div>
+            <div className="flex-1 p-2 flex items-center justify-center">
+              <p className="text-white text-[100px] font-bold">{timeLeft}</p>
+            </div>
+          </div> */}
         </div>
         <div className="w-full overflow-auto">
           <div className="min-w-[960px] grid grid-cols-12 px-2 py-1">
@@ -236,7 +246,10 @@ const App = () => {
                         : 'text-red-500 text-sm'
                     }
                   >
-                    {Math.round(position.expectedPayoutRatio * 10_000) / 10_000}
+                    {position.expectedPayoutRatio
+                      ? Math.round(position.expectedPayoutRatio * 10_000) /
+                        10_000
+                      : '---'}
                     x
                   </p>
                 </div>
