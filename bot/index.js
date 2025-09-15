@@ -1,4 +1,4 @@
-import { parseEther } from '@ethersproject/units';
+import { formatEther, parseEther } from '@ethersproject/units';
 import { BigNumber } from '@ethersproject/bignumber';
 
 import { wallet, contract } from './configs/asset.config.js';
@@ -6,11 +6,11 @@ import { getRound } from './services/round.service.js';
 import { redis } from './configs/redis.config.js';
 import environments from './utils/environments.js';
 import { staticProvider } from './configs/provider.config.js';
+import { sendNotification } from './configs/telegram.config.js';
 
 const {
   PANCAKE_PREDICTION_TREASURY_FEE,
   PANCAKE_PREDICTION_BET_AMOUNT,
-  MIN_GAS,
 
   FULFILL_PHASE_END_TIME_IN_SECOND,
   CLAIM_PHASE_END_TIME_IN_SECOND,
@@ -18,9 +18,10 @@ const {
 
   MIN_ROI,
   NUMBER_OF_ROUNDS_TO_CLAIM,
+
+  START_BALANCE,
 } = environments;
 
-const minGas = parseEther(MIN_GAS);
 const fulfillPhaseEndTimeInSecond = Number(FULFILL_PHASE_END_TIME_IN_SECOND);
 const claimPhaseEndTimeInSecond = Number(CLAIM_PHASE_END_TIME_IN_SECOND);
 const analyzePhaseStartTimeFromSecond = Number(
@@ -31,6 +32,8 @@ const numberOfRoundsToClaim = Number(NUMBER_OF_ROUNDS_TO_CLAIM);
 const defaultBetAmount = Number(PANCAKE_PREDICTION_BET_AMOUNT);
 const treasuryFee = Number(PANCAKE_PREDICTION_TREASURY_FEE);
 const payoutRatio = 1 - treasuryFee;
+
+const startBalance = Number(START_BALANCE);
 
 const locked = {};
 const fulfilling = {};
@@ -69,6 +72,12 @@ const bet = async (epoch, fn, betAmount) => {
     [fn](epoch, { value: parseEther(`${betAmount}`), gasPrice });
 
   await tx.wait();
+
+  const rawBalance = await staticProvider.getBalance(wallet.address);
+  const balance = formatEther(rawBalance);
+  sendNotification(
+    `[#${epoch}] ${fn} ${betAmount} BNB\nbalance: ${balance} BNB`
+  );
 };
 
 const getLockPrice = async (positions, epoch) => {
@@ -122,12 +131,27 @@ const fulfillRound = async (positions, epoch) => {
   }
 
   await setPositions(positions);
+  sendNotification(
+    `[#${epoch}] ${hasWon} ? 'won' : 'lost'\noutcome ${
+      positions[epoch].outcome > 0 ? '+' : ''
+    }${positions[epoch].outcome} BNB`
+  );
 };
 
 const claimWinRounds = async (positions) => {
   const winRounds = Object.values(positions).filter(
     (position) => position.result === 'win' && position.claimed === false
   );
+
+  const totalPendingRewards = winRounds.reduce(
+    (total, round) => total + round.outcome,
+    0
+  );
+  if (!!winRounds.length) {
+    sendNotification(
+      `pending win rounds: ${winRounds.length}\npending reward: ${totalPendingRewards} BNB`
+    );
+  }
 
   if (winRounds.length >= numberOfRoundsToClaim) {
     const epochs = winRounds.map((round) => round.epoch);
@@ -140,6 +164,14 @@ const claimWinRounds = async (positions) => {
     winRounds.map((round) => {
       positions[round.epoch].claimed = true;
     }, {});
+
+    const rawBalance = await staticProvider.getBalance(wallet.address);
+    const balance = formatEther(rawBalance);
+    sendNotification(
+      `claimed ${totalPendingRewards} BNB\nbalance: ${balance} BNB\nnet profit: ${
+        balance - startBalance
+      } BNB`
+    );
   }
 
   await setPositions(positions);

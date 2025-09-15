@@ -10,7 +10,6 @@ const environments = {
     process.env.PANCAKE_PREDICTION_CONTRACT_ADDRESS,
   PANCAKE_PREDICTION_TREASURY_FEE: process.env.PANCAKE_PREDICTION_TREASURY_FEE,
   PANCAKE_PREDICTION_BET_AMOUNT: process.env.PANCAKE_PREDICTION_BET_AMOUNT,
-  MIN_GAS: process.env.MIN_GAS,
 
   FULFILL_PHASE_END_TIME_IN_SECOND:
     process.env.FULFILL_PHASE_END_TIME_IN_SECOND,
@@ -26,6 +25,11 @@ const environments = {
   REDIS_PASSWORD: process.env.REDIS_PASSWORD,
   REDIS_HOST: process.env.REDIS_HOST,
   REDIS_PORT: process.env.REDIS_PORT,
+
+  TELEGRAM_BOT_TOKEN: process.env.TELEGRAM_BOT_TOKEN,
+  TELEGRAM_CHAT_ID: process.env.TELEGRAM_CHAT_ID,
+
+  START_BALANCE: process.env.START_BALANCE,
 };
 
 export default environments;
