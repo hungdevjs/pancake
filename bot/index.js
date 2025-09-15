@@ -132,7 +132,7 @@ const fulfillRound = async (positions, epoch) => {
 
   await setPositions(positions);
   sendNotification(
-    `[#${epoch}] ${hasWon} ? 'won' : 'lost'\noutcome ${
+    `[#${epoch}] ${hasWon ? 'won' : 'lost'}\noutcome ${
       positions[epoch].outcome > 0 ? '+' : ''
     }${positions[epoch].outcome} BNB`
   );
