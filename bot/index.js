@@ -147,11 +147,6 @@ const claimWinRounds = async (positions) => {
     (total, round) => total + round.outcome,
     0
   );
-  if (!!winRounds.length) {
-    sendNotification(
-      `pending win rounds: ${winRounds.length}\npending reward: ${totalPendingRewards} BNB`
-    );
-  }
 
   if (winRounds.length >= numberOfRoundsToClaim) {
     const epochs = winRounds.map((round) => round.epoch);
