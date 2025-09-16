@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 
-import BNBChart from '../components/BNBChart';
+import BNBChart from './components/BNBChart';
 import { getPositions, getBNBPriceInUSD } from './services/api';
 import environments from './utils/environments';
 
