@@ -1,65 +1,86 @@
-import { useEffect, useRef } from 'react';
-import { createChart, CandlestickSeries } from 'lightweight-charts';
+import { useEffect, useState, useRef } from 'react';
+import { AreaSeries, createChart, ColorType } from 'lightweight-charts';
 
-const BnbChart = () => {
-  const chartContainerRef = useRef(null);
+const backgroundColor = 'black';
+const lineColor = '#fcd535';
+const textColor = 'white';
+const gridColor = '#111';
+const areaTopColor = '#fcd535ff';
+const areaBottomColor = 'rgba(252, 213, 53, 0.2)';
+
+export const ChartComponent = ({ data }) => {
+  const chartContainerRef = useRef();
 
   useEffect(() => {
-    const chart = createChart(chartContainerRef.current, {
-      width: chartContainerRef.current.clientWidth,
-      height: 400,
-      layout: {
-        background: { color: '#000' },
-        textColor: '#fff',
-      },
-      grid: {
-        vertLines: { color: '#111' },
-        horzLines: { color: '#111' },
-      },
-      timeScale: {
-        borderColor: '#111',
-      },
-    });
-
-    const candleSeries = chart.addSeries(CandlestickSeries, {
-      upColor: '#26a69a',
-      downColor: '#ef5350',
-      wickUpColor: '#26a69a',
-      wickDownColor: '#ef5350',
-      borderUpColor: '#26a69a',
-      borderDownColor: '#ef5350',
-    });
-
-    const ws = new WebSocket(
-      'wss://stream.binance.com:9443/ws/bnbusdt@kline_1m'
-    );
-
-    ws.onmessage = (event) => {
-      const data = JSON.parse(event.data);
-      const k = data.k;
-
-      candleSeries.update({
-        time: Math.floor(k.t / 1000),
-        open: parseFloat(k.o),
-        high: parseFloat(k.h),
-        low: parseFloat(k.l),
-        close: parseFloat(k.c),
-      });
-    };
-
     const handleResize = () => {
       chart.applyOptions({ width: chartContainerRef.current.clientWidth });
     };
+
+    const chart = createChart(chartContainerRef.current, {
+      layout: {
+        background: { type: ColorType.Solid, color: backgroundColor },
+        textColor,
+      },
+      grid: {
+        vertLines: { color: gridColor },
+        horzLines: { color: gridColor },
+      },
+      width: chartContainerRef.current.clientWidth,
+      height: 400,
+    });
+    chart.timeScale().fitContent();
+
+    const newSeries = chart.addSeries(AreaSeries, {
+      lineColor,
+      topColor: areaTopColor,
+      bottomColor: areaBottomColor,
+    });
+    newSeries.setData(data);
+
     window.addEventListener('resize', handleResize);
 
     return () => {
-      ws.close();
       window.removeEventListener('resize', handleResize);
+
       chart.remove();
+    };
+  }, [
+    data,
+    backgroundColor,
+    lineColor,
+    textColor,
+    areaTopColor,
+    areaBottomColor,
+  ]);
+
+  return <div ref={chartContainerRef} />;
+};
+
+const BNBChart = () => {
+  const [data, setData] = useState([]);
+
+  useEffect(() => {
+    const ws = new WebSocket('wss://stream.binance.com:9443/ws/bnbusdt@trade');
+
+    ws.onmessage = (event) => {
+      const trade = JSON.parse(event.data);
+      const time = Math.floor(trade.T / 1000);
+      const price = parseFloat(trade.p);
+
+      setData((prev) => {
+        if (prev.at(-1)?.time === time) {
+          return [...prev.slice(0, -1), { time, value: price }];
+        }
+        return [...prev, { time, value: price }];
+      });
+    };
+
+    return () => {
+      ws.close();
     };
   }, []);
 
-  return <div ref={chartContainerRef} className="w-full h-[400px]" />;
+  return <ChartComponent data={data} />;
 };
 
-export default BnbChart;
+export default BNBChart;
