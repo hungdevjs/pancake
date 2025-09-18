@@ -6,7 +6,7 @@ import environments from './utils/environments';
 
 const { MASTER_WALLET_ADDRESS } = environments;
 
-const INTERVAL_WINDOW = 20_000;
+const INTERVAL_WINDOW = 2_000;
 
 const types = ['bnb', 'btc', 'eth'];
 
