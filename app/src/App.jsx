@@ -1,12 +1,14 @@
 import { useState, useEffect, useRef } from 'react';
 
-import BNBChart from './components/BNBChart';
+import Chart from './components/Chart';
 import { getPositions, getBNBPriceInUSD } from './services/api';
 import environments from './utils/environments';
 
 const { MASTER_WALLET_ADDRESS } = environments;
 
-const INTERVAL_WINDOW = 2_000;
+const INTERVAL_WINDOW = 20_000;
+
+const types = ['bnb', 'btc', 'eth'];
 
 const App = () => {
   const [positions, setPositions] = useState([]);
@@ -15,6 +17,7 @@ const App = () => {
   const [BNBPrice, setBNBPrice] = useState(0);
   const [currentRound, setCurrentRound] = useState(null);
   const [timeLeft, setTimeLeft] = useState('---');
+  const [type, setType] = useState('bnb');
 
   const interval = useRef();
   const removeInterval = () => {
@@ -25,7 +28,7 @@ const App = () => {
 
   const get = async () => {
     try {
-      const res = await getPositions();
+      const res = await getPositions(type);
       const {
         positions: newPositions,
         balance: newBalance,
@@ -58,7 +61,7 @@ const App = () => {
     interval.current = setInterval(get, INTERVAL_WINDOW);
 
     return () => removeInterval();
-  }, []);
+  }, [type]);
 
   const countdownInterval = useRef();
   const removeCountdownInterval = () => {
@@ -80,6 +83,7 @@ const App = () => {
 
     setTimeLeft(Math.round(diff / 1_000));
   };
+
   useEffect(() => {
     removeCountdownInterval();
     if (currentRound) {
@@ -103,6 +107,19 @@ const App = () => {
               Net profit: {Math.round(netProfit * 1_000_000) / 1_000_000} BNB
             </p>
           </div>
+          <div className="flex gap-2 items-center border border-gray-800 p-2">
+            {types.map((item) => (
+              <div
+                key={item}
+                className={`w-[100px] px-2 py-1 flex items-center justify-center border border-gray-800 cursor-pointer transition duration-200 hover:bg-green-800 ${
+                  type === item ? 'bg-green-900' : ''
+                }`}
+                onClick={() => setType(item)}
+              >
+                <p className="text-white font-medium">{item.toUpperCase()}</p>
+              </div>
+            ))}
+          </div>
           <div className="bg-white/7 p-2 rounded-lg">
             <p className="text-white font-light">
               {MASTER_WALLET_ADDRESS.slice(0, 6)}...
@@ -116,7 +133,7 @@ const App = () => {
         </div>
         <div className="grid grid-cols-12 gap-2">
           <div className="col-span-12 sm:col-span-6">
-            <BNBChart />
+            <Chart type={type} />
           </div>
           {currentRound && (
             <div className="col-span-12 sm:col-span-6 border border-gray-700 flex flex-col">

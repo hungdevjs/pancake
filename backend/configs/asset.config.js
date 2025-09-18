@@ -5,11 +5,31 @@ import PancakePredictionABI from '../assets/PancakePrediction.abi.json' with { t
 import environments from '../utils/environments.js';
 
 const {
-  PANCAKE_PREDICTION_CONTRACT_ADDRESS,
+  PANCAKE_BNB_PREDICTION_CONTRACT_ADDRESS,
+  PANCAKE_BTC_PREDICTION_CONTRACT_ADDRESS,
+  PANCAKE_ETH_PREDICTION_CONTRACT_ADDRESS,
 } = environments;
 
-export const contract = new Contract(
-  PANCAKE_PREDICTION_CONTRACT_ADDRESS,
+const contractBNB = new Contract(
+  PANCAKE_BNB_PREDICTION_CONTRACT_ADDRESS,
   PancakePredictionABI.abi,
   staticProvider
 );
+
+const contractBTC = new Contract(
+  PANCAKE_BTC_PREDICTION_CONTRACT_ADDRESS,
+  PancakePredictionABI.abi,
+  staticProvider
+);
+
+const contractETH = new Contract(
+  PANCAKE_ETH_PREDICTION_CONTRACT_ADDRESS,
+  PancakePredictionABI.abi,
+  staticProvider
+);
+
+export const contracts = {
+  bnb: contractBNB,
+  btc: contractBTC,
+  eth: contractETH
+}

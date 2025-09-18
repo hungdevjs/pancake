@@ -1,8 +1,9 @@
 import { formatEther } from '@ethersproject/units';
 
-import { contract } from '../configs/asset.config.js';
+import { contracts } from '../configs/asset.config.js';
 
-export const getRound = async (epoch) => {
+export const getRound = (type) => async (epoch) => {
+  const contract = contracts[type];
   const currentRound = await contract.rounds(epoch);
 
   const {
@@ -51,10 +52,11 @@ export const getRound = async (epoch) => {
   };
 };
 
-export const getCurrentRound = async () => {
+export const getCurrentRound = (type) => async () => {
+  const contract = contracts[type];
   const epoch = await contract.currentEpoch();
   const currentEpoch = Number(epoch.toString());
 
-  const data = await getRound(currentEpoch);
+  const data = await getRound(type)(currentEpoch);
   return data;
 };

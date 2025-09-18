@@ -23,7 +23,8 @@ api.interceptors.response.use(
 
 export default api;
 
-export const getPositions = () => api.get('/positions');
+export const getPositions = (type) =>
+  api.get('/positions', { params: { type } });
 
 export const getBNBPriceInUSD = async () => {
   try {

@@ -8,7 +8,7 @@ const gridColor = '#111';
 const areaTopColor = '#fcd535ff';
 const areaBottomColor = 'rgba(252, 213, 53, 0.2)';
 
-export const ChartComponent = ({ data }) => {
+export const ChartComponent = ({ data, currentPrice }) => {
   const chartContainerRef = useRef();
 
   useEffect(() => {
@@ -53,14 +53,27 @@ export const ChartComponent = ({ data }) => {
     areaBottomColor,
   ]);
 
-  return <div ref={chartContainerRef} />;
+  return (
+    <div>
+      <div ref={chartContainerRef} />
+      <div>
+        <p className="text-white text-center font-bold text-3xl">
+          ${currentPrice.toLocaleString()}
+        </p>
+      </div>
+    </div>
+  );
 };
 
-const BNBChart = () => {
+const Chart = ({ type }) => {
   const [data, setData] = useState([]);
+  const [currentPrice, setCurrentPrice] = useState('---');
 
   useEffect(() => {
-    const ws = new WebSocket('wss://stream.binance.com:9443/ws/bnbusdt@trade');
+    setData((prev) => []);
+    const ws = new WebSocket(
+      `wss://stream.binance.com:9443/ws/${type}usdt@trade`
+    );
 
     ws.onmessage = (event) => {
       const trade = JSON.parse(event.data);
@@ -73,14 +86,15 @@ const BNBChart = () => {
         }
         return [...prev, { time, value: price }];
       });
+      setCurrentPrice(price);
     };
 
     return () => {
       ws.close();
     };
-  }, []);
+  }, [type]);
 
-  return <ChartComponent data={data} />;
+  return <ChartComponent data={data} currentPrice={currentPrice} />;
 };
 
-export default BNBChart;
+export default Chart;
