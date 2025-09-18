@@ -46,13 +46,15 @@ const getTick = (type) => {
   const sendNotification = sendContractNotification(type);
 
   const getPositions = async () => {
-    const data = (await redis.get(`pancake:${type}`)) || '{}';
+    const key = type === 'bnb' ? 'pancake' : `pancake_${type}`;
+    const data = (await redis.get(key)) || '{}';
 
     return JSON.parse(data);
   };
 
   const setPositions = async (data) => {
-    await redis.set(`pancake:${type}`, JSON.stringify(data));
+    const key = type === 'bnb' ? 'pancake' : `pancake_${type}`;
+    await redis.set(key, JSON.stringify(data));
   };
 
   const getGasFeeData = async (multiplier = 1) => {

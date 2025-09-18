@@ -24,7 +24,8 @@ app.get('/', async (req, res) => {
 app.get('/positions', async (req, res) => {
   try {
     const { type } = req.query;
-    const data = (await redis.get(`pancake:${type}`)) || '{}';
+    const key = type === 'bnb' ? 'pancake' : `pancake_${type}`;
+    const data = (await redis.get(key)) || '{}';
     const positions = JSON.parse(data);
 
     const results = Object.values(positions).sort(
