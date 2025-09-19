@@ -100,9 +100,9 @@ const getTick = (type) => {
       sendNotification(
         `[#${epoch}]\nbet ${positions[epoch].position} ${
           positions[epoch].amount
-        } BNB\nlock price ${positions[epoch].lockPrice.toFixed(
-          3
-        )}\nexpect return ${positions[epoch].expectedPayoutRatio.toFixed(3)}x`
+        } BNB\nlock price ${
+          Math.round(positions[epoch].lockPrice / 1000_000) / 100
+        }\nexpect return ${positions[epoch].expectedPayoutRatio.toFixed(3)}x`
       );
     }
   };
