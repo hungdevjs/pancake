@@ -7,8 +7,8 @@ const main = async () => {
 
   while (true) {
     await tickBNB();
-    await tickBTC();
-    await tickETH();
+    // await tickBTC();
+    // await tickETH();
     await delay(250);
   }
 };

@@ -80,9 +80,6 @@ const getTick = (type) => {
 
     const rawBalance = await staticProvider.getBalance(wallet.address);
     const balance = formatEther(rawBalance);
-    sendNotification(
-      `[#${epoch}] ${fn} ${betAmount} BNB\nbalance: ${balance} BNB`
-    );
   };
 
   const getLockPrice = async (positions, epoch) => {
@@ -99,6 +96,14 @@ const getTick = (type) => {
       positions[epoch].lockPrice = lockPrice;
       positions[epoch].expectedPayoutRatio = expectedPayoutRatio;
       await setPositions(positions);
+
+      sendNotification(
+        `[#${epoch}]\nbet ${positions[epoch].position} ${
+          positions[epoch].amount
+        } BNB\nlock price ${positions[epoch].lockPrice.toFixed(
+          3
+        )}\nexpect return ${positions[epoch].expectedPayoutRatio.toFixed(3)}x`
+      );
     }
   };
 
