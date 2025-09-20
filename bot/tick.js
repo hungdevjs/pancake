@@ -77,9 +77,6 @@ const getTick = (type) => {
       [fn](epoch, { value: parseEther(`${betAmount}`), gasPrice });
 
     await tx.wait();
-
-    const rawBalance = await staticProvider.getBalance(wallet.address);
-    const balance = formatEther(rawBalance);
   };
 
   const getLockPrice = async (positions, epoch) => {

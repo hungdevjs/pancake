@@ -1,0 +1,22 @@
+@import url(https://db.onlinewebfonts.com/c/d05c19ccecf7003d248c60ffd6b5e8f7?family=Binance+PLEX);
+@import 'tailwindcss';
+
+* {
+  box-sizing: border-box;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  font-family: 'Binance PLEX', sans-serif;
+}
+
+*::-webkit-scrollbar {
+  display: none;
+}
+
+html,
+body {
+  margin: 0;
+  height: 100dvh;
+  width: 100dvw;
+  background-color: black;
+  overflow: hidden;
+}
